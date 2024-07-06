@@ -237,7 +237,7 @@ def google_bot_process_for_us(input_text, sender_id, recipient_id):
         
         cache.set(chat_history_key, chat_history, timeout=3600)
         
-        return chat_history
+        return assistant_response
     except Exception as e:
         print(f"Error in google_bot_process_for_us: {str(e)}")
         return f"Oops! I hit a snag. Can you try saying that again? Error: {str(e)}"
@@ -262,7 +262,7 @@ def google_bot_process_for_demo(input_text, sender_id, recipient_id):
         
         cache.set(chat_history_key, chat_history, timeout=3600)
         
-        return chat_history
+        return assistant_response
     except Exception as e:
         print(f"Error in google_bot_process_for_demo: {str(e)}")
         return f"Oops! I hit a snag. Can you try saying that again? Error: {str(e)}"
