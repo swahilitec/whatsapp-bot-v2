@@ -82,7 +82,7 @@ def webhook(request):
                                     textContent = messages[0].get('text', {}).get('body', '')
 
                                     # bot_response = openai_bot_process(textContent, phoneNumber, whatsappId)
-                                    bot_response = google_bot_process_for_us(textContent, phoneNumber, whatsappId, '')
+                                    bot_response = google_bot_process_for_us(textContent, phoneNumber, whatsappId)
                                     
 
 
