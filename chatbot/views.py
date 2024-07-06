@@ -10,6 +10,7 @@ from django.http import JsonResponse
 from rest_framework import viewsets
 import requests, json
 
+
 class WhatsAppViewSet(viewsets.ViewSet):
     permission_classes = [AllowAny]
 
@@ -33,10 +34,18 @@ class WhatsAppViewSet(viewsets.ViewSet):
     
     @csrf_exempt
     @action(detail=False, methods=['post'])
-    def chat_with_bot(self, request):
+    def chat_with_our_bot(self, request):
         input_text = request.data.get('input_text')
         print(f'\nInput text for bot: {input_text}\n')  # Print the input text for debugging
-        response_text = bot_respond(input_text, '255755888555', '255755888555')
+        response_text = bot_respond_for_us(input_text, '255755888555', '255755888555')
+        return Response({"response": response_text})
+    
+    @csrf_exempt
+    @action(detail=False, methods=['post'])
+    def chat_with_demo_bot(self, request):
+        input_text = request.data.get('input_text')
+        print(f'\nInput text for bot: {input_text}\n')  # Print the input text for debugging
+        response_text = bot_respond_for_demo(input_text, '255755888555', '255755888555')
         return Response({"response": response_text})
     
 
@@ -73,7 +82,7 @@ def webhook(request):
                                     textContent = messages[0].get('text', {}).get('body', '')
 
                                     # bot_response = openai_bot_process(textContent, phoneNumber, whatsappId)
-                                    bot_response = google_bot_process(textContent, phoneNumber, whatsappId)
+                                    bot_response = google_bot_process_for_us(textContent, phoneNumber, whatsappId, '')
                                     
 
 

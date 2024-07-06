@@ -29,11 +29,28 @@ client = openai.OpenAI()
 LLM_model = "gpt-4"
 
 
-LLM_role_instructions = """
-You are Lil Trey, a fun and engaging chatbot. Keep your responses conversational, 
-as if you're texting a friend. Use casual language, throw in some jokes or puns when appropriate, 
-and don't be afraid to use emojis 😊. Remember past context and refer back to it naturally. 
-Ask questions to keep the conversation going. If the user seems down, try to cheer them up!
+Internal_LLM_role_instructions = """
+Your name is bongapal, you are an internal customer service agent for Bonga.
+You work in the tech department and your job is to help businesses use the capabilities of AI and LLM's to automate their customer service.
+You are responsible for handling any technical issues or inquiries from customers. 
+You are also responsible to handle any customer enquiries relating to business and operations at Bonga LTD
+Bonga is based in East Africa with HQ in dar es salaam.
+Bonga focuses on local languages to simplify customer service using AI
+"""
+
+
+
+Customer_LLM_role_instructions = """
+Your name is EcoPal, you are a customer service agent for Ecobank.
+You provide 24/7 online customer service to customers of Ecobank.
+Your job is to assist customers with any inquiries or issues they may have regarding their bank accounts or transactions. 
+You are also responsible for promoting and educating customers on the various digital banking services offered by Ecobank.
+Ecobank is a Pan-African bank with operations in 36 countries across the continent, more than any other bank in the world. 
+Ecobank is a full-service bank providing wholesale, retail, investment and transaction banking services and products to governments, financial institutions, multinationals,
+international organizations, medium small and micro businesses.
+You are responsible for answering any questions or concerns that customers may have about their bank accounts, 
+transactions, or other banking services. You should always maintain a professional and helpful tone,
+and provide accurate information to the
 """
 
 
@@ -90,10 +107,29 @@ def verify_webhook_token(request):
     return HttpResponse('Method not allowed', status=405)
 
 
-def bot_respond(input_text, sender_id, recipient_id):
+# def bot_respond(input_text, sender_id, recipient_id, instructions):
+#     try:
+#         # response_text = openai_bot_process(input_text, sender_id, recipient_id)
+#         response_text = google_bot_process(input_text, sender_id, recipient_id, instructions)
+#         return response_text
+#     except Exception as e:
+#         error_message = f"Error generating bot response: {e}"
+#         print(error_message)
+#         return f"Oops! I hit a snag. Can you try saying that again? ({error_message})"
+def bot_respond_for_us(input_text, sender_id, recipient_id):
     try:
         # response_text = openai_bot_process(input_text, sender_id, recipient_id)
-        response_text = google_bot_process(input_text, sender_id, recipient_id)
+        response_text = google_bot_process_for_us(input_text, sender_id, recipient_id)
+        return response_text
+    except Exception as e:
+        error_message = f"Error generating bot response: {e}"
+        print(error_message)
+        return f"Oops! I hit a snag. Can you try saying that again? ({error_message})"
+    
+def bot_respond_for_demo(input_text, sender_id, recipient_id):
+    try:
+        # response_text = openai_bot_process(input_text, sender_id, recipient_id)
+        response_text = google_bot_process_for_demo(input_text, sender_id, recipient_id)
         return response_text
     except Exception as e:
         error_message = f"Error generating bot response: {e}"
@@ -148,16 +184,36 @@ genai.configure(api_key=GOOGLE_API_KEY)
 # Initialize the model
 model = genai.GenerativeModel('gemini-pro')  # Changed to 'gemini-pro' for testing
 
-LLM_role_instructions = """
-You are Lil Trey, a fun and engaging chatbot. Keep your responses conversational, 
-as if you're texting a friend. Use casual language, throw in some jokes or puns when appropriate, 
-and don't be afraid to use emojis 😊. Remember past context and refer back to it naturally. 
-Ask questions to keep the conversation going. If the user seems down, try to cheer them up!
-"""
 
-def google_bot_process(input_text, sender_id, recipient_id):
+# def google_bot_process(input_text, sender_id, recipient_id, instructions):
+#     user_input = input_text
+#     chat_history_key = f'chat_history_{sender_id}_{recipient_id}'
+#     chat_history = cache.get(chat_history_key, [])
+    
+#     if len(chat_history) > 10:
+#         chat_history = chat_history[-10:]
+    
+#     try:
+#         chat_history.append(f"User: {user_input}")
+        
+#         conversation = f"{instructions}\n\n{''.join(chat_history)}\nAssistant:"
+        
+#         response = model.generate_content(conversation)
+        
+#         assistant_response = response.text
+#         chat_history.append(f"Assistant: {assistant_response}")
+        
+#         cache.set(chat_history_key, chat_history, timeout=3600)
+        
+#         return assistant_response
+#     except Exception as e:
+#         print(f"Error in google_bot_process: {str(e)}")
+#         return f"Oops! I hit a snag. Can you try saying that again? Error: {str(e)}"
+    
+
+def google_bot_process_for_us(input_text, sender_id, recipient_id):
     user_input = input_text
-    chat_history_key = f'chat_history_{sender_id}_{recipient_id}'
+    chat_history_key = f'us_chat_history_{sender_id}_{recipient_id}'  # Added 'us_' prefix
     chat_history = cache.get(chat_history_key, [])
     
     if len(chat_history) > 10:
@@ -166,7 +222,7 @@ def google_bot_process(input_text, sender_id, recipient_id):
     try:
         chat_history.append(f"User: {user_input}")
         
-        conversation = f"{LLM_role_instructions}\n\n{''.join(chat_history)}\nAssistant:"
+        conversation = f"{Internal_LLM_role_instructions}\n\n{''.join(chat_history)}\nAssistant:"
         
         response = model.generate_content(conversation)
         
@@ -175,7 +231,32 @@ def google_bot_process(input_text, sender_id, recipient_id):
         
         cache.set(chat_history_key, chat_history, timeout=3600)
         
-        return assistant_response
+        return chat_history
     except Exception as e:
-        print(f"Error in google_bot_process: {str(e)}")
+        print(f"Error in google_bot_process_for_us: {str(e)}")
+        return f"Oops! I hit a snag. Can you try saying that again? Error: {str(e)}"
+
+def google_bot_process_for_demo(input_text, sender_id, recipient_id):
+    user_input = input_text
+    chat_history_key = f'demo_chat_history_{sender_id}_{recipient_id}'  # Added 'demo_' prefix
+    chat_history = cache.get(chat_history_key, [])
+    
+    if len(chat_history) > 10:
+        chat_history = chat_history[-10:]
+    
+    try:
+        chat_history.append(f"User: {user_input}")
+        
+        conversation = f"{Customer_LLM_role_instructions}\n\n{''.join(chat_history)}\nAssistant:"
+        
+        response = model.generate_content(conversation)
+        
+        assistant_response = response.text
+        chat_history.append(f"Assistant: {assistant_response}")
+        
+        cache.set(chat_history_key, chat_history, timeout=3600)
+        
+        return chat_history
+    except Exception as e:
+        print(f"Error in google_bot_process_for_demo: {str(e)}")
         return f"Oops! I hit a snag. Can you try saying that again? Error: {str(e)}"
