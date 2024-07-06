@@ -1,0 +1,80 @@
+# authentication/models.py
+from django.db import models
+from django.utils import timezone
+from django.contrib.auth.models import AbstractUser
+from accounts.managers import UserManager
+import uuid
+
+# Define the user roles with more clarity
+USER_ROLES = (
+    ('manager', 'Club Manager'),
+    ('player', 'Player'),
+    ('coach', 'Coach'),
+    ('parent', 'Parent'),
+    ('referee', 'Referee'),
+    ('admin', 'Site Admin'),
+)
+
+class User(AbstractUser):
+    # Custom user manager
+    objects = UserManager()
+    
+    # User role and additional fields
+    role = models.CharField(max_length=30, choices=USER_ROLES, blank=False, null=False)
+    email = models.EmailField(unique=True, blank=False, null=False)
+    password = models.CharField(max_length=100, blank=False, null=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    # Fields for password reset and email verification
+    reset_token = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, null=True)
+    reset_token_expiry = models.DateTimeField(null=True)
+    reset_token_used_already = models.BooleanField(default=False)
+    email_verification_code = models.PositiveIntegerField(blank=True, null=True)
+    is_email_verified = models.BooleanField(default=False)
+    
+    # Fields specific to the football club context
+    company_name = models.CharField(max_length=100, blank=True, null=True)
+    date_of_birth = models.DateField(null=True, blank=True)
+    address = models.CharField(max_length=255, blank=True, null=True)
+    
+    def is_reset_token_valid(self):
+        return self.reset_token_expiry and self.reset_token_expiry > timezone.now()
+
+    # Maintain default Django permissions behavior
+    groups = models.ManyToManyField(
+        'auth.Group',
+        related_name='custom_user_set',
+        blank=True,
+        help_text='The groups this user belongs to. A user will get all permissions granted to each of their groups.',
+        verbose_name='groups',
+    )
+    user_permissions = models.ManyToManyField(
+        'auth.Permission',
+        related_name='custom_user_set',
+        blank=True,
+        help_text='Specific permissions for this user.',
+        verbose_name='user permissions',
+    )
+
+    REQUIRED_FIELDS = ['email', 'role']
+
+    def __str__(self):
+        return f"{self.username} ({self.get_role_display()})"
+
+class Profile(models.Model):
+    # Linking the profile to the user
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    
+    # Additional fields for profile information
+    phone = models.CharField(max_length=15, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    # Additional fields for player-specific information
+    position = models.CharField(max_length=30, blank=True, null=True)  # e.g., Forward, Defender
+    jersey_number = models.PositiveIntegerField(blank=True, null=True)
+    emergency_contact_name = models.CharField(max_length=100, blank=True, null=True)
+    emergency_contact_phone = models.CharField(max_length=15, blank=True, null=True)
+
+    def __str__(self):
+        return self.user.username
