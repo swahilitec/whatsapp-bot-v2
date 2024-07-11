@@ -115,6 +115,12 @@ def verify_webhook_token(request):
     return HttpResponse('Method not allowed', status=405)
 
 
+# Set up and Initialize the model for google/gemini-pro
+model = genai.GenerativeModel('gemini-pro') 
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+genai.configure(api_key=GOOGLE_API_KEY)
+
+
 # def bot_respond(input_text, sender_id, recipient_id, instructions):
 #     try:
 #         # response_text = openai_bot_process(input_text, sender_id, recipient_id)
@@ -124,26 +130,6 @@ def verify_webhook_token(request):
 #         error_message = f"Error generating bot response: {e}"
 #         print(error_message)
 #         return f"Oops! I hit a snag. Can you try saying that again? ({error_message})"
-def bot_respond_for_us(input_text, sender_id, recipient_id):
-    try:
-        # response_text = openai_bot_process(input_text, sender_id, recipient_id)
-        response_text = google_bot_process_for_us(input_text, sender_id, recipient_id)
-        return response_text
-    except Exception as e:
-        error_message = f"Error generating bot response: {e}"
-        print(error_message)
-        return f"Oops! I hit a snag. Can you try saying that again? ({error_message})"
-    
-def bot_respond_for_demo(input_text, sender_id, recipient_id):
-    try:
-        # response_text = openai_bot_process(input_text, sender_id, recipient_id)
-        response_text = google_bot_process_for_demo(input_text, sender_id, recipient_id)
-        return response_text
-    except Exception as e:
-        error_message = f"Error generating bot response: {e}"
-        print(error_message)
-        return f"Oops! I hit a snag. Can you try saying that again? ({error_message})"
-
 
 # def openai_bot_process(input_text, sender_id, recipient_id):
 #     user_input = input_text
@@ -178,20 +164,6 @@ def bot_respond_for_demo(input_text, sender_id, recipient_id):
 #         return assistant_response
 #     except Exception as e:
 #         return f"Oops! I hit a snag. Can you try saying that again? 😅"
-    
-
-
-
-
-# 
-
-GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
-genai.configure(api_key=GOOGLE_API_KEY)
-
-
-# Initialize the model
-model = genai.GenerativeModel('gemini-pro')  # Changed to 'gemini-pro' for testing
-
 
 # def google_bot_process(input_text, sender_id, recipient_id, instructions):
 #     user_input = input_text
@@ -217,7 +189,28 @@ model = genai.GenerativeModel('gemini-pro')  # Changed to 'gemini-pro' for testi
 #     except Exception as e:
 #         print(f"Error in google_bot_process: {str(e)}")
 #         return f"Oops! I hit a snag. Can you try saying that again? Error: {str(e)}"
+
+
+def bot_respond_for_us(input_text, sender_id, recipient_id):
+    try:
+        # response_text = openai_bot_process(input_text, sender_id, recipient_id)
+        response_text = google_bot_process_for_us(input_text, sender_id, recipient_id)
+        return response_text
+    except Exception as e:
+        error_message = f"Error generating bot response: {e}"
+        print(error_message)
+        return f"Oops! I hit a snag. Can you try saying that again? ({error_message})"
     
+def bot_respond_for_demo(input_text, sender_id, recipient_id):
+    try:
+        # response_text = openai_bot_process(input_text, sender_id, recipient_id)
+        response_text = google_bot_process_for_demo(input_text, sender_id, recipient_id)
+        return response_text
+    except Exception as e:
+        error_message = f"Error generating bot response: {e}"
+        print(error_message)
+        return f"Oops! I hit a snag. Can you try saying that again? ({error_message})"
+
 
 def google_bot_process_for_us(input_text, sender_id, recipient_id):
     user_input = input_text
@@ -243,6 +236,7 @@ def google_bot_process_for_us(input_text, sender_id, recipient_id):
     except Exception as e:
         print(f"Error in google_bot_process_for_us: {str(e)}")
         return f"Oops! I hit a snag. Can you try saying that again? Error: {str(e)}"
+
 
 def google_bot_process_for_demo(input_text, sender_id, recipient_id):
     user_input = input_text
