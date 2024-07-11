@@ -131,7 +131,7 @@ CORS_ALLOW_ALL_ORIGINS = False  # Set to True for development, but be cautious i
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "https://whatsapp-bot-v2-fow2.onrender.com",
-    "https://eco-care.vercel.app/"  # Add your frontend's production domain here
+    "https://eco-care.vercel.app"  # Add your frontend's production domain here
 ]
 CORS_ALLOW_CREDENTIALS = True
 
